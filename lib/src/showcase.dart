@@ -28,16 +28,19 @@ class BubbleShowcase extends StatefulWidget {
   /// Whether to show a close button.
   final bool showCloseButton;
 
+  final Function onClose;
+
   /// Creates a new bubble showcase instance.
-  BubbleShowcase({
-    @required this.bubbleShowcaseId,
-    @required this.bubbleShowcaseVersion,
-    this.doNotReopenOnClose = false,
-    @required this.bubbleSlides,
-    this.child,
-    this.counterText = ':i/:n',
-    this.showCloseButton = true,
-  }) : assert(bubbleSlides.isNotEmpty);
+  BubbleShowcase(
+      {@required this.bubbleShowcaseId,
+      @required this.bubbleShowcaseVersion,
+      this.doNotReopenOnClose = false,
+      @required this.bubbleSlides,
+      this.child,
+      this.counterText = ':i/:n',
+      this.showCloseButton = true,
+      this.onClose})
+      : assert(bubbleSlides.isNotEmpty);
 
   @override
   State<StatefulWidget> createState() => _BubbleShowcaseState();
@@ -48,13 +51,15 @@ class BubbleShowcase extends StatefulWidget {
       return true;
     }
     SharedPreferences preferences = await SharedPreferences.getInstance();
-    bool result = preferences.getBool(bubbleShowcaseId + '.' + bubbleShowcaseVersion.toString());
+    bool result = preferences
+        .getBool(bubbleShowcaseId + '.' + bubbleShowcaseVersion.toString());
     return result == null || result;
   }
 }
 
 /// The BubbleShowcase state.
-class _BubbleShowcaseState extends State<BubbleShowcase> with WidgetsBindingObserver {
+class _BubbleShowcaseState extends State<BubbleShowcase>
+    with WidgetsBindingObserver {
   /// The current slide index.
   int _currentSlideIndex = -1;
 
@@ -99,7 +104,9 @@ class _BubbleShowcaseState extends State<BubbleShowcase> with WidgetsBindingObse
   }
 
   /// Returns whether the showcasing is finished.
-  bool get _isFinished => _currentSlideIndex == -1 || _currentSlideIndex == widget.bubbleSlides.length;
+  bool get _isFinished =>
+      _currentSlideIndex == -1 ||
+      _currentSlideIndex == widget.bubbleSlides.length;
 
   /// Closes the showcase if finished.
   void _closeIfFinished() {
@@ -110,8 +117,15 @@ class _BubbleShowcaseState extends State<BubbleShowcase> with WidgetsBindingObse
     _currentSlideEntry = null;
     if (widget.doNotReopenOnClose) {
       SharedPreferences.getInstance().then((preferences) {
-        preferences.setBool(widget.bubbleShowcaseId + '.' + widget.bubbleShowcaseVersion.toString(), false);
+        preferences.setBool(
+            widget.bubbleShowcaseId +
+                '.' +
+                widget.bubbleShowcaseVersion.toString(),
+            false);
       });
+    }
+    if (widget.onClose != null) {
+      onClose();
     }
   }
 
