@@ -125,7 +125,7 @@ class _BubbleShowcaseState extends State<BubbleShowcase>
       });
     }
     if (widget.onClose != null) {
-      onClose();
+      widget.onClose();
     }
   }
 
